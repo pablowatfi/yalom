@@ -1,6 +1,10 @@
 # Yalom - Huberman Lab AI Assistant
 
-AI-powered search and Q&A system for Huberman Lab podcast transcripts using a local RAG pipeline and optional AWS deployment.
+AI-powered search and Q&A system for Huberman Lab podcast transcripts.
+
+**Deployment modes:**
+- **Local (developer use):** Run Postgres + Qdrant via Docker, build vectors locally, and query via CLI or Streamlit (API mode pointed at a running backend).
+- **Cloud/production:** Deployed as AWS Lambdas behind the `/query` API (no Streamlit served). Request a temporary one-hour deployment from the repo owner if you need a live demo.
 
 ## ✨ What’s in the codebase
 
@@ -15,7 +19,7 @@ AI-powered search and Q&A system for Huberman Lab podcast transcripts using a lo
 
 - Python 3.10+
 - Poetry
-- Docker (for Postgres/Qdrant)
+- Docker (for Postgres/Qdrant in local mode only)
 - Optional: Groq/OpenAI API keys or Ollama for local LLMs
 
 ## 🚀 Quick start (local only)
