@@ -27,8 +27,21 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
-      - name: Run tests
-        run: make test
+      - name: Run tests with coverage
+        run: make test-coverage
+
+      - name: Upload HTML coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov
+
+      - name: Publish coverage summary
+        uses: dorny/test-reporter@v1
+        with:
+          name: pytest coverage
+          path: coverage.xml
+          reporter: cobertura
 
       - name: Run lint
         run: make lint

@@ -30,7 +30,7 @@ test-vector-store: ## Test vector store factory (Qdrant/Pinecone)
 
 test-coverage: ## Run tests with coverage
 	@echo "$(YELLOW)Running tests with coverage...$(NC)"
-	poetry run pytest tests/ --cov=src --cov-report=html --cov-report=term
+	poetry run pytest tests/ --cov=src --cov-report=xml:coverage.xml --cov-report=html --cov-report=term
 	@echo "$(GREEN)✅ Coverage report generated in htmlcov/$(NC)"
 
 lint: ## Run linting checks
