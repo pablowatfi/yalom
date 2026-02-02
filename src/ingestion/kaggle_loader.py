@@ -3,7 +3,6 @@ Load transcripts from Kaggle dataset.
 """
 import logging
 import json
-import os
 from typing import List, Dict, Optional
 from pathlib import Path
 

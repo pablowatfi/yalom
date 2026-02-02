@@ -4,7 +4,7 @@ TapeSearch podcast scraping functionality.
 import logging
 from time import sleep
 from datetime import datetime
-from typing import List, Dict, Optional
+from typing import Dict, Optional
 import random
 
 from sqlalchemy.orm import Session

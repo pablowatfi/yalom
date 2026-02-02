@@ -12,7 +12,6 @@ Usage:
     poetry run python populate_vector_db.py          # Skip existing transcripts
     poetry run python populate_vector_db.py --recreate  # Clear and re-vectorize all
 """
-import os
 import sys
 from pathlib import Path
 
@@ -55,10 +54,10 @@ def main():
     # Get transcript count
     total = session.query(VideoTranscript).count()
     with_transcript = session.query(VideoTranscript).filter(
-        VideoTranscript.has_transcript == True
+        VideoTranscript.has_transcript
     ).count()
 
-    print(f"   ✓ Connected")
+    print("   ✓ Connected")
     print(f"   Total records: {total}")
     print(f"   With transcripts: {with_transcript}")
     print()
@@ -91,8 +90,8 @@ def main():
         else:
             vector_store.create_collection(recreate=False)
             print("   ✓ Collection created")
-    except Exception as e:
-        print(f"   Creating new collection...")
+    except Exception:
+        print("   Creating new collection...")
         vector_store.create_collection(recreate=True)
         print("   ✓ Collection created")
 

@@ -57,7 +57,7 @@ class VectorStoreManager:
             logger.info("Using OpenAI embeddings")
         else:
             self.embeddings = embeddings
-            logger.info(f"Using custom embeddings provider")
+            logger.info("Using custom embeddings provider")
 
         logger.info(
             f"Initialized VectorStoreManager: collection={collection_name}, "
@@ -108,7 +108,7 @@ class VectorStoreManager:
         logger.info(f"Adding {len(documents)} documents to {self.collection_name}")
 
         # Create vector store
-        vector_store = QdrantVectorStore.from_documents(
+        QdrantVectorStore.from_documents(
             documents=documents,
             embedding=self.embeddings,
             url=self.qdrant_url,

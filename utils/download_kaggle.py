@@ -12,7 +12,6 @@ from pathlib import Path
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-import os
 import subprocess
 from pathlib import Path
 
@@ -49,12 +48,12 @@ def download_with_api(output_path: str = '.'):
 
         if dataset_folder.exists():
             print(f"\n✅ Success! Dataset downloaded to: {dataset_folder}")
-            print(f"\n📁 Contents:")
-            print(f"  - text/ : 197 plain text transcripts")
-            print(f"  - videoID.json : Video metadata")
-            print(f"  - TimestampedTranscriptions/ : Timestamped formats (CSV/JSON/SRT)")
-            print(f"  - consolidated.txt : All transcripts in one file")
-            print(f"\n🚀 Now run:")
+            print("\n📁 Contents:")
+            print("  - text/ : 197 plain text transcripts")
+            print("  - videoID.json : Video metadata")
+            print("  - TimestampedTranscriptions/ : Timestamped formats (CSV/JSON/SRT)")
+            print("  - consolidated.txt : All transcripts in one file")
+            print("\n🚀 Now run:")
             print(f"  poetry run python cli.py kaggle-load --path {dataset_folder}")
             return str(dataset_folder)
         else:

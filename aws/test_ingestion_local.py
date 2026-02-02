@@ -58,7 +58,7 @@ def test_ingestion_local():
         if response.get('body'):
             try:
                 body = json.loads(response['body'])
-                print(f"\nParsed Response:")
+                print("\nParsed Response:")
                 print(json.dumps(body, indent=2))
             except json.JSONDecodeError:
                 pass

@@ -117,7 +117,7 @@ class VectorizationPipeline:
 
         # Build query
         query = session.query(VideoTranscript).filter(
-            VideoTranscript.has_transcript == True
+            VideoTranscript.has_transcript
         )
 
         if transcript_ids:

@@ -3,7 +3,7 @@ Scraper for loading transcripts from Kaggle dataset into database.
 """
 import logging
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict
 
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
