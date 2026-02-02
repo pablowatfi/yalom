@@ -33,6 +33,7 @@ openai = "^1.59.9"
 jupyter = "^1.0.0"
 ipykernel = "^6.29.0"
 pytest = "^8.3.4"
+pytest-cov = "^6.0.0"
 
 [build-system]
 requires = ["poetry-core"]
