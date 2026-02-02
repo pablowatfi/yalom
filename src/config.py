@@ -36,9 +36,9 @@ YT_DLP_OPTIONS = {
 CHUNK_SIZE = int(os.getenv('CHUNK_SIZE', '1000'))  # Characters per chunk
 CHUNK_OVERLAP = int(os.getenv('CHUNK_OVERLAP', '100'))  # Overlap between chunks
 CHUNKING_STRATEGY = os.getenv('CHUNKING_STRATEGY', 'recursive')  # recursive, character, or token
-# FastEmbed default (384 dimensions, no torch)
-EMBEDDING_MODEL = os.getenv('EMBEDDING_MODEL', 'BAAI/bge-small-en-v1.5')
-EMBEDDING_DIMENSION = int(os.getenv('EMBEDDING_DIMENSION', '384'))
+# OpenAI embeddings (default)
+EMBEDDING_MODEL = os.getenv('EMBEDDING_MODEL', 'text-embedding-3-small')
+EMBEDDING_DIMENSION = int(os.getenv('EMBEDDING_DIMENSION', '1536'))
 
 # Vector Store configuration (Hybrid approach)
 VECTOR_STORE = os.getenv('VECTOR_STORE', 'qdrant')  # 'qdrant' (local) or 'pinecone' (cloud)

@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from src.database import db, VideoTranscript
 from src.vectorization.vector_store import VectorStoreManager
 from src.vectorization.pipeline import VectorizationPipeline
-from src.config import CHUNK_SIZE, CHUNK_OVERLAP, CHUNKING_STRATEGY
+from src.config import CHUNK_SIZE, CHUNK_OVERLAP, CHUNKING_STRATEGY, EMBEDDING_MODEL, EMBEDDING_DIMENSION
 
 
 def main():
@@ -41,11 +41,10 @@ def main():
         print("   (Use --recreate to clear and re-vectorize all)")
     print()
 
-    # Using local HuggingFace embeddings - no API key needed!
-    print("Using HuggingFace embeddings (sentence-transformers/all-MiniLM-L6-v2)")
-    print("  - Free and runs locally")
-    print("  - 384 dimensions")
-    print("  - No API costs")
+    # Using OpenAI embeddings
+    print(f"Using OpenAI embeddings ({EMBEDDING_MODEL})")
+    print(f"  - {EMBEDDING_DIMENSION} dimensions")
+    print("  - Requires OPENAI_API_KEY")
     print()
 
     # Connect to database
@@ -73,8 +72,7 @@ def main():
     vector_store = VectorStoreManager(
         collection_name="huberman_transcripts",
         qdrant_url="http://localhost:6333",
-        # Using default HuggingFace embeddings (no embeddings parameter needed)
-        embedding_dimension=384  # all-MiniLM-L6-v2 dimension
+        embedding_dimension=EMBEDDING_DIMENSION
     )
 
     # Check if collection exists

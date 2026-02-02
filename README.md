@@ -6,7 +6,7 @@ AI-powered search and Q&A system for Huberman Lab podcast transcripts using a lo
 
 - **Ingestion** from YouTube, TapeSearch, Kaggle, and GitHub transcript sources
 - **PostgreSQL** for transcript storage (Docker-ready)
-- **Vectorization** pipeline with FastEmbed embeddings (default: `BAAI/bge-small-en-v1.5`)
+- **Vectorization** pipeline with OpenAI embeddings (default: `text-embedding-3-small`)
 - **Vector stores**: Qdrant (local) and Pinecone (cloud)
 - **RAG pipeline** with query rewriting, similarity filtering, and prompt injection checks
 - **Interfaces**: CLI tools, Streamlit UI (API mode), and AWS Lambdas

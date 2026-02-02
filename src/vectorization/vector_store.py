@@ -28,7 +28,7 @@ class VectorStoreManager:
         collection_name: str = "huberman_transcripts",
         qdrant_url: str = "http://localhost:6333",
         embeddings = None,  # Accept custom embeddings provider
-        embedding_dimension: int = 384,  # Default for BAAI/bge-small-en-v1.5
+        embedding_dimension: int = None,
     ):
         """
         Initialize vector store manager.
@@ -36,9 +36,11 @@ class VectorStoreManager:
         Args:
             collection_name: Name of the Qdrant collection
             qdrant_url: Qdrant server URL
-            embeddings: LangChain embeddings provider (default: FastEmbed)
+            embeddings: LangChain embeddings provider (default: OpenAI)
             embedding_dimension: Dimension of embedding vectors
         """
+        if embedding_dimension is None:
+            embedding_dimension = int(os.getenv("EMBEDDING_DIMENSION", "1536"))
         self.collection_name = collection_name
         self.qdrant_url = qdrant_url
         self.embedding_dimension = embedding_dimension
@@ -46,13 +48,13 @@ class VectorStoreManager:
         # Initialize Qdrant client
         self.client = QdrantClient(url=qdrant_url)
 
-        # Initialize embeddings - use FastEmbed by default
+        # Initialize embeddings - use OpenAI embeddings by default
         if embeddings is None:
             from .simple_embeddings import SimpleSentenceTransformerEmbeddings
             self.embeddings = SimpleSentenceTransformerEmbeddings(
-                model_name="BAAI/bge-small-en-v1.5"
+                model_name=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
             )
-            logger.info("Using FastEmbed: BAAI/bge-small-en-v1.5 (384 dim)")
+            logger.info("Using OpenAI embeddings")
         else:
             self.embeddings = embeddings
             logger.info(f"Using custom embeddings provider")

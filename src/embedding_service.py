@@ -8,7 +8,13 @@ from typing import List
 from openai import OpenAI
 
 _DEFAULT_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
-_OPENAI_CLIENT = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+
+def _get_openai_client() -> OpenAI:
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY is not set")
+    return OpenAI(api_key=api_key)
 
 
 def embed_documents(
@@ -20,7 +26,8 @@ def embed_documents(
     all_embeddings: List[List[float]] = []
     for i in range(0, len(texts), batch_size):
         batch = texts[i:i + batch_size]
-        response = _OPENAI_CLIENT.embeddings.create(
+        client = _get_openai_client()
+        response = client.embeddings.create(
             model=model,
             input=batch,
         )
@@ -30,7 +37,8 @@ def embed_documents(
 
 def embed_query(text: str, model_name: str | None = None) -> List[float]:
     model = model_name or _DEFAULT_MODEL
-    response = _OPENAI_CLIENT.embeddings.create(
+    client = _get_openai_client()
+    response = client.embeddings.create(
         model=model,
         input=[text],
     )
