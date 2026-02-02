@@ -34,6 +34,7 @@ jupyter = "^1.0.0"
 ipykernel = "^6.29.0"
 pytest = "^8.3.4"
 pytest-cov = "^6.0.0"
+ruff = "*"
 
 [build-system]
 requires = ["poetry-core"]
