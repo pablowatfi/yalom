@@ -1,48 +1,27 @@
-#!/usr/bin/env python3
-"""
-Simple test of the RAG pipeline with a single question.
-"""
-import os
-import sys
-from pathlib import Path
+from langchain_core.messages import HumanMessage, AIMessage
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-from src.rag import RAGPipeline
+from src.rag.pipeline import RAGPipeline
 
 
-def main():
-    # Get API key
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        print("Error: OPENAI_API_KEY not set")
-        print("Set it with: export OPENAI_API_KEY='your-key'")
-        return 1
+def test_get_conversation_history_formats_roles():
+    pipeline = RAGPipeline.__new__(RAGPipeline)
+    pipeline.chat_history = [
+        HumanMessage(content="hi"),
+        AIMessage(content="hello"),
+    ]
 
-    print("Initializing RAG pipeline...")
-    rag = RAGPipeline(api_key=api_key, top_k=5)
+    history = pipeline.get_conversation_history()
 
-    print("\nAsking test question...")
-    question = "What are Andrew Huberman's recommendations for improving sleep quality?"
-
-    result = rag.ask(question)
-
-    print("\n" + "=" * 80)
-    print("QUESTION:", question)
-    print("=" * 80)
-    print("\nANSWER:")
-    print(result["answer"])
-    print("\n" + "=" * 80)
-    print(f"SOURCES ({len(result['sources'])} excerpts):")
-    print("=" * 80)
-
-    for i, source in enumerate(result["sources"], 1):
-        print(f"\n{i}. {source['title']}")
-        print(f"   {source['content']}")
-
-    print("\n✅ Test complete!")
-    return 0
+    assert history == [
+        {"role": "user", "content": "hi"},
+        {"role": "assistant", "content": "hello"},
+    ]
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+def test_reset_conversation_clears_history():
+    pipeline = RAGPipeline.__new__(RAGPipeline)
+    pipeline.chat_history = [HumanMessage(content="hi")]
+
+    pipeline.reset_conversation()
+
+    assert pipeline.chat_history == []

@@ -1,94 +1,83 @@
-#!/usr/bin/env python3
-"""
-Test similarity threshold filtering to show how it improves quality.
+from dataclasses import dataclass
 
-This demonstrates:
-1. Retrieving more candidates (21 instead of 7)
-2. Filtering by similarity threshold (≥0.5)
-3. Returning only high-quality matches
-"""
-import sys
-from pathlib import Path
-import logging
+from src.rag.pipeline import RAGPipeline
 
-sys.path.insert(0, str(Path(__file__).parent))
 
-from src.rag import RAGPipeline
-from src.config import (
-    RAG_TOP_K,
-    RAG_RETRIEVAL_MULTIPLIER,
-    RAG_SIMILARITY_THRESHOLD
-)
+@dataclass
+class _Doc:
+    page_content: str
+    metadata: dict
 
-# Enable INFO logging to see filtering stats
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(levelname)s: %(message)s'
-)
 
-print("=" * 80)
-print("  Similarity Threshold Filtering Test")
-print("=" * 80)
-print()
+class _FakeVectorStore:
+    def __init__(self, docs_with_scores):
+        self._docs_with_scores = docs_with_scores
 
-# Initialize pipeline
-print("Initializing RAG pipeline...")
-print(f"  - Top K (final): {RAG_TOP_K}")
-print(f"  - Retrieval candidates: {RAG_TOP_K * RAG_RETRIEVAL_MULTIPLIER}")
-print(f"  - Similarity threshold: {RAG_SIMILARITY_THRESHOLD}")
-print()
+    def similarity_search_with_score(self, _query, k):
+        return self._docs_with_scores[:k]
 
-rag = RAGPipeline(
-    llm_provider="ollama",
-    model_name="llama3.2",
-    query_rewriting=True,
-    verbose_sources=0,
-    top_k=RAG_TOP_K,
-    retrieval_multiplier=RAG_RETRIEVAL_MULTIPLIER,
-    similarity_threshold=RAG_SIMILARITY_THRESHOLD
-)
 
-print("\n" + "=" * 80)
-print("TEST 1: Good Match (Specific Topic)")
-print("=" * 80)
-question1 = "What are Huberman's recommendations for sleep optimization?"
-print(f"Question: {question1}\n")
+class _FakeQueryRewriter:
+    def rewrite(self, question):
+        return {
+            "queries": [question],
+            "language": "en",
+            "original_question": question,
+            "english_question": question,
+        }
 
-result1 = rag.ask(question1)
+    def translate_answer(self, text, _lang, _name):
+        return text
 
-print(f"\nAnswer length: {len(result1['answer'])} chars")
-print(f"Sources returned: {len(result1['sources'])} episodes")
-print(f"Answer preview: {result1['answer'][:200]}...")
 
-print("\n" + "=" * 80)
-print("TEST 2: Vague Query (May filter more)")
-print("=" * 80)
-question2 = "quantum physics"
-print(f"Question: {question2}\n")
+class _FakePrompt:
+    def format_messages(self, context, question):
+        return [{"role": "system", "content": context}, {"role": "user", "content": question}]
 
-result2 = rag.ask(question2)
 
-print(f"\nAnswer length: {len(result2['answer'])} chars")
-print(f"Sources returned: {len(result2['sources'])} episodes")
-print(f"Answer preview: {result2['answer'][:200]}...")
+class _FakeLLM:
+    def invoke(self, _messages):
+        class _Resp:
+            content = "unit-test-answer"
 
-print("\n" + "=" * 80)
-print("TEST 3: Very Specific (Should get high-quality matches)")
-print("=" * 80)
-question3 = "dopamine fasting protocol recommendations"
-print(f"Question: {question3}\n")
+        return _Resp()
 
-result3 = rag.ask(question3)
 
-print(f"\nAnswer length: {len(result3['answer'])} chars")
-print(f"Sources returned: {len(result3['sources'])} episodes")
-print(f"Answer preview: {result3['answer'][:200]}...")
+def _make_pipeline(docs_with_scores, top_k=2, threshold=0.5):
+    pipeline = RAGPipeline.__new__(RAGPipeline)
+    pipeline.top_k = top_k
+    pipeline.retrieval_multiplier = 3
+    pipeline.similarity_threshold = threshold
+    pipeline.verbose_sources = 0
+    pipeline.vector_store = _FakeVectorStore(docs_with_scores)
+    pipeline.query_rewriter = _FakeQueryRewriter()
+    pipeline.prompt = _FakePrompt()
+    pipeline.llm = _FakeLLM()
+    pipeline.chat_history = []
+    return pipeline
 
-print("\n" + "=" * 80)
-print("✅ Similarity filtering test complete!")
-print("=" * 80)
-print("\nKey improvements:")
-print("  - Retrieves 3x more candidates for better coverage")
-print("  - Filters out weak matches (< 0.5 similarity)")
-print("  - Returns 1-7 sources based on actual relevance")
-print("  - Prevents misleading information from unrelated topics")
+
+def test_similarity_filtering_applies_threshold():
+    docs_with_scores = [
+        (_Doc("A", {"title": "t1", "transcript_id": "1"}), 0.9),
+        (_Doc("B", {"title": "t2", "transcript_id": "2"}), 0.4),
+        (_Doc("C", {"title": "t3", "transcript_id": "3"}), 0.7),
+    ]
+    pipeline = _make_pipeline(docs_with_scores, top_k=2, threshold=0.6)
+
+    result = pipeline.ask("test question")
+
+    assert len(result["sources"]) == 2
+    assert result["sources"][0]["title"] in {"t1", "t3"}
+
+
+def test_similarity_filtering_falls_back_when_no_docs_pass():
+    docs_with_scores = [
+        (_Doc("A", {"title": "t1", "transcript_id": "1"}), 0.2),
+        (_Doc("B", {"title": "t2", "transcript_id": "2"}), 0.1),
+    ]
+    pipeline = _make_pipeline(docs_with_scores, top_k=2, threshold=0.6)
+
+    result = pipeline.ask("test question")
+
+    assert len(result["sources"]) == 2

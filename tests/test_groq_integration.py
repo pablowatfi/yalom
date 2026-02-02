@@ -1,70 +1,51 @@
-#!/usr/bin/env python3
-"""
-Test script to verify Groq integration with the RAG pipeline.
-
-Usage:
-    export GROQ_YALOM_API_KEY=gsk_your_key_here
-    poetry run python test_groq_integration.py
-"""
-import os
-import sys
+import src.rag.pipeline as pipeline_module
 from src.rag.pipeline import RAGPipeline
 
-def test_groq():
-    """Test Groq integration."""
 
-    # Check API key
-    api_key = os.getenv("GROQ_YALOM_API_KEY")
-    if not api_key:
-        print("❌ Error: GROQ_YALOM_API_KEY environment variable not set")
-        print("\nSet it with:")
-        print("  export GROQ_YALOM_API_KEY=gsk_your_key_here")
-        print("\nGet your API key from: https://console.groq.com")
-        sys.exit(1)
+class _FakeEmbeddings:
+    pass
 
-    print("✅ API key found:", api_key[:10] + "..." + api_key[-4:])
-    print("\n" + "="*60)
-    print("Testing Groq Integration")
-    print("="*60 + "\n")
 
-    try:
-        # Initialize RAG pipeline with Groq
-        print("🔧 Initializing RAG pipeline with Groq...")
-        pipeline = RAGPipeline(
-            llm_provider="groq",
-            model_name="llama-3.1-70b-versatile",
-            api_key=api_key,
-            top_k=3,
-            query_rewriting=False,  # Disable for faster testing
-            verbose_sources=1
-        )
-        print("✅ Pipeline initialized successfully!\n")
+class _FakeQdrantClient:
+    def __init__(self, *args, **kwargs):
+        pass
 
-        # Test query
-        print("📝 Testing query: 'What is neuroplasticity?'\n")
-        result = pipeline.ask("What is neuroplasticity?")
 
-        print("="*60)
-        print("ANSWER:")
-        print("="*60)
-        print(result['answer'])
-        print("\n" + "="*60)
-        print(f"SOURCES: {len(result['sources'])} chunks")
-        print("="*60)
+class _FakeVectorStore:
+    def __init__(self, *args, **kwargs):
+        pass
 
-        for i, source in enumerate(result['sources'][:3], 1):
-            metadata = source.metadata
-            print(f"\n{i}. {metadata.get('title', 'Unknown')}")
-            print(f"   Score: {metadata.get('score', 'N/A'):.4f}")
-            print(f"   Excerpt: {source.page_content[:150]}...")
+    def as_retriever(self, *args, **kwargs):
+        return object()
 
-        print("\n✅ Test completed successfully!")
 
-    except Exception as e:
-        print(f"\n❌ Error: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+class _FakeChatGroq:
+    def __init__(self, model, temperature, api_key):
+        self.model = model
+        self.temperature = temperature
+        self.api_key = api_key
 
-if __name__ == "__main__":
-    test_groq()
+    def invoke(self, _messages):
+        class _Resp:
+            content = "ok"
+
+        return _Resp()
+
+
+def test_groq_initializes_with_api_key(monkeypatch):
+    monkeypatch.setattr(pipeline_module, "SimpleSentenceTransformerEmbeddings", _FakeEmbeddings)
+    monkeypatch.setattr(pipeline_module, "QdrantClient", _FakeQdrantClient)
+    monkeypatch.setattr(pipeline_module, "QdrantVectorStore", _FakeVectorStore)
+    monkeypatch.setattr(pipeline_module, "ChatGroq", _FakeChatGroq)
+
+    pipeline = RAGPipeline(
+        llm_provider="groq",
+        api_key="test-key",
+        model_name=None,
+        top_k=1,
+        query_rewriting=False,
+    )
+
+    assert pipeline.llm_provider == "groq"
+    assert pipeline.llm.api_key == "test-key"
+    assert pipeline.model_name == "llama-3.3-70b-versatile"
