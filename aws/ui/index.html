@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Ask Huberman</title>
+  <link rel="stylesheet" href="styles.css?v=3" />
+</head>
+
+<body>
+  <div id="app" class="app">
+    <header>
+      <h1>Ask Huberman</h1>
+      <p>Ask questions about Huberman Lab podcasts.</p>
+    </header>
+
+    <main>
+      <div class="card chat-card">
+        <div class="chat">
+          <div v-for="(m, idx) in messages" :key="idx" class="message" :class="m.role">{{ m.content }}</div>
+        </div>
+        <div class="composer">
+          <textarea v-model="query" rows="2" placeholder="Ask a question… (it can be in English, Spanish, French, etc.)"
+            @keydown.enter.exact.prevent="send"></textarea>
+          <button :disabled="loading" @click="send">Send</button>
+          <button class="secondary" :disabled="loading" @click="resetChat">Reset</button>
+        </div>
+        <div class="status">{{ status }}</div>
+      </div>
+
+      <div class="card">
+        <h3>Sources</h3>
+        <ul class="sources">
+          <li v-for="(s, idx) in sources" :key="idx">
+            {{ s.episode_name || s.video_id || 'unknown' }}<span v-if="s.score"> (score: {{ s.score.toFixed(3)
+              }})</span>
+          </li>
+        </ul>
+      </div>
+    </main>
+
+    <footer>
+      <small>Powered by Groq + Pinecone + OpenAI embeddings</small>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      var version = 'v=3';
+      function withVersion(src) {
+        return src.indexOf('?') === -1 ? src + '?' + version : src + '&' + version;
+      }
+      function load(src, onload) {
+        var s = document.createElement('script');
+        s.src = withVersion(src);
+        s.onload = onload || null;
+        document.head.appendChild(s);
+      }
+
+      function loadApp() {
+        load('config.js', function () {
+          load('app.js');
+        });
+      }
+
+      load('https://unpkg.com/vue@3/dist/vue.global.prod.js', function () {
+        if (window.Vue) {
+          loadApp();
+        }
+      });
+
+      setTimeout(function () {
+        if (!window.Vue) {
+          load('https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js', loadApp);
+        }
+      }, 1500);
+
+      setTimeout(function () {
+        if (!window.Vue) {
+          var statusEl = document.querySelector('.status');
+          if (statusEl) {
+            statusEl.textContent = 'Vue failed to load. Check network or CSP.';
+          }
+        }
+      }, 4000);
+    })();
+  </script>
+</body>
+
+</html>

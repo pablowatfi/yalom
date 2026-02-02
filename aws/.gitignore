@@ -1,0 +1,42 @@
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Lambda packages
+builds/
+*.zip
+
+# Lambda dependencies (installed during build)
+lambda_ingestion/src/
+lambda_ingestion/sentence_transformers/
+lambda_ingestion/torch/
+lambda_ingestion/pinecone/
+lambda_ingestion/groq/
+lambda_ingestion/*.dist-info/
+
+lambda_query/src/
+lambda_query/sentence_transformers/
+lambda_query/torch/
+lambda_query/pinecone/
+lambda_query/groq/
+lambda_query/*.dist-info/
+
+# Secrets
+*.pem
+*.key
+trust-policy.json
+response.json
+
+# macOS
+.DS_Store

@@ -1,0 +1,6 @@
+pinecone-client==5.0.1
+openai==1.59.9
+pydantic==2.7.4
+pydantic-core==2.18.4
+youtube-transcript-api==0.6.2
+boto3==1.35.0

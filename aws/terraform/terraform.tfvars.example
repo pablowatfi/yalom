@@ -1,0 +1,14 @@
+# AWS Configuration
+aws_region = "us-east-1"
+project_name = "yalom"
+
+# API Keys (REQUIRED - copy this file to terraform.tfvars and fill in)
+pinecone_api_key = "your-pinecone-api-key-here"
+groq_api_key = "your-groq-api-key-here"
+openai_api_key = "your-openai-api-key-here"
+
+# S3 Bucket (must be globally unique)
+s3_bucket_name = "yalom-transcripts-backup"
+
+# UI Bucket (must be globally unique)
+ui_bucket_name = "yalom-ui-your-unique-id"
