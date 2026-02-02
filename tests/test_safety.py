@@ -1,4 +1,3 @@
-import pytest
 
 from src.rag.safety import is_prompt_injection, is_prompt_injection_in_history
 

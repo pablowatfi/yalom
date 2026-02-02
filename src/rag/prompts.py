@@ -8,7 +8,6 @@ Each prompt has:
 - changelog: What changed from previous version
 """
 from typing import Dict, Any
-from datetime import datetime
 
 
 # Current active version

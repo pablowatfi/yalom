@@ -21,7 +21,7 @@ from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 
 from ..vectorization.simple_embeddings import SimpleSentenceTransformerEmbeddings
-from .prompts import get_active_prompt, ACTIVE_VERSION, get_language_name
+from .prompts import get_active_prompt, get_language_name
 from .query_rewriter import QueryRewriter
 
 logger = logging.getLogger(__name__)

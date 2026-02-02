@@ -101,7 +101,7 @@ def migrate():
             print("  - Title is the primary deduplication key")
             return True
         else:
-            print(f"\n⚠️  Warning: Some issues detected")
+            print("\n⚠️  Warning: Some issues detected")
             return False
 
     except Exception as e:

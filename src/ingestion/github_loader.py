@@ -4,7 +4,6 @@ Load transcripts from GitHub repositories.
 import logging
 import re
 from typing import List, Dict, Optional
-from datetime import datetime
 import requests
 
 from ..config import REQUEST_TIMEOUT

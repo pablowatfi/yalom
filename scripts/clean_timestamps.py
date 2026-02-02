@@ -13,7 +13,6 @@ This script will:
 """
 import re
 import logging
-from typing import List
 
 from src.database.connection import Database
 from src.database.models import VideoTranscript
@@ -140,7 +139,7 @@ def main():
         if transcript.transcript_text:
             try:
                 # Pass the VideoTranscript object directly
-                num_chunks = pipeline.process_transcript(transcript)
+                pipeline.process_transcript(transcript)
                 vectorized_count += 1
 
                 if i % 10 == 0:

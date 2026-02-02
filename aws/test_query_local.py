@@ -101,8 +101,8 @@ if __name__ == '__main__':
         for var in missing_vars:
             print(f"   - {var}")
         print("\nSet them with:")
-        print(f"   export GROQ_API_KEY=$GROQ_YALOM_API_KEY")
-        print(f"   export PINECONE_API_KEY=your-pinecone-key")
+        print("   export GROQ_API_KEY=$GROQ_YALOM_API_KEY")
+        print("   export PINECONE_API_KEY=your-pinecone-key")
         print("\nContinuing with test values...\n")
 
     # Get query from command line or use default

@@ -5,18 +5,10 @@ Streamlit Web UI for Huberman Lab AI Assistant.
 Usage:
     poetry run streamlit run app/streamlit_app.py
 """
-import os
-import sys
-from pathlib import Path
-
-# Add project root to path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
-import streamlit as st
 import requests
-from src.rag.safety import is_prompt_injection, is_prompt_injection_in_history
+import streamlit as st
 from src.config import API_BASE_URL, RAG_TOP_K
+from src.rag.safety import is_prompt_injection, is_prompt_injection_in_history
 
 
 # Page config

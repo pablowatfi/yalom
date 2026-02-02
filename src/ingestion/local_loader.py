@@ -2,7 +2,6 @@
 """
 Load local transcript files from /data folder into the database.
 """
-import os
 import re
 import logging
 from pathlib import Path
@@ -114,7 +113,7 @@ def load_local_transcripts(data_folder: str = "/Users/pablowatfi/repos/yalom/dat
 
     # Show current database totals
     total_count = session.query(VideoTranscript).filter(
-        VideoTranscript.has_transcript == True
+        VideoTranscript.has_transcript
     ).count()
     print(f"\n🎉 Your database now has {total_count} transcripts total! 🎉\n")
 

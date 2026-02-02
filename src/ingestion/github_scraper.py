@@ -2,7 +2,6 @@
 Scraper for loading transcripts from GitHub repositories into database.
 """
 import logging
-from time import sleep
 from datetime import datetime
 from typing import Dict, Optional
 
@@ -103,7 +102,7 @@ class GitHubScraper:
                 month = int(date_parts[1])
                 day = int(date_parts[0])
                 upload_date = f"{year:04d}{month:02d}{day:02d}"
-            except:
+            except (IndexError, ValueError):
                 upload_date = None
 
             # Save to database
@@ -181,7 +180,7 @@ class GitHubScraper:
             month = int(date_parts[1])
             day = int(date_parts[0])
             upload_date = f"{year:04d}{month:02d}{day:02d}"
-        except:
+        except (IndexError, ValueError):
             upload_date = None
 
         # Save to database
