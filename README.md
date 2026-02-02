@@ -1,4 +1,4 @@
-# Yalom - Huberman Lab AI Assistant
+# Huberman Lab AI Assistant (ONGOING PERSONAL PROJECT)
 
 AI-powered search and Q&A system for Huberman Lab podcast transcripts.
 
