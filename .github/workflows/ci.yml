@@ -37,11 +37,11 @@ jobs:
           path: htmlcov
 
       - name: Publish coverage summary
-        uses: dorny/test-reporter@v1
+        uses: codecov/codecov-action@v4
         with:
-          name: pytest coverage
-          path: coverage.xml
-          reporter: cobertura
+          file: coverage.xml
+          flags: unittests
+          name: pytest-coverage
 
       - name: Run lint
         run: make lint
