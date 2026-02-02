@@ -18,7 +18,7 @@ AI-powered search and Q&A system for Huberman Lab podcast transcripts using a lo
 - Docker (for Postgres/Qdrant)
 - Optional: Groq/OpenAI API keys or Ollama for local LLMs
 
-## 🚀 Quick start (local)
+## 🚀 Quick start (local only)
 
 1. Install dependencies
    ```bash
@@ -31,12 +31,12 @@ AI-powered search and Q&A system for Huberman Lab podcast transcripts using a lo
    ```
    Update keys as needed (see Configuration below).
 
-3. Start services
+3. Start local services (Postgres, Qdrant)
    ```bash
    docker-compose up -d
    ```
 
-4. Initialize the database
+4. Initialize the database (local)
    ```bash
    poetry run python scripts/cli.py init-db
    ```
@@ -56,12 +56,12 @@ AI-powered search and Q&A system for Huberman Lab podcast transcripts using a lo
    poetry run python scripts/cli.py scrape-channel "https://www.youtube.com/@hubermanlab"
    ```
 
-6. Build the vector store
+6. Build the vector store (local)
    ```bash
    poetry run python scripts/populate_vector_db.py
    ```
 
-7. Ask questions
+7. Ask questions (local CLI)
    ```bash
    poetry run python scripts/chat_cli.py
    ```
@@ -122,12 +122,14 @@ See `.env.example` for the full list. Common settings:
 - `TAPESEARCH_API_KEY` - TapeSearch ingestion
 - `API_BASE_URL` - Streamlit UI (API mode)
 
-## ☁️ AWS deployment
+## ☁️ Cloud / production deployment
 
-The `aws/` folder contains Lambda handlers, Terraform, and a static UI deploy script. Start with:
+The production path runs as AWS Lambdas behind the `/query` API; no Streamlit is served in production. To deploy the cloud stack, see:
 
 - [aws/README.md](aws/README.md)
 - [docs/AWS_DEPLOYMENT_COMPLETE.md](docs/AWS_DEPLOYMENT_COMPLETE.md)
+
+If you want a temporary production demo, contact the repo owner to spin up a one-hour deployment for testing.
 
 ## 📚 Documentation
 
