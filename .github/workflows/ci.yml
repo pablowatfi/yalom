@@ -43,8 +43,10 @@ jobs:
           flags: unittests
           name: pytest-coverage
 
+      - name: Format code
+        run: make format
+
       - name: Run lint
         run: make lint
 
-      - name: Format code
-        run: make format
+
