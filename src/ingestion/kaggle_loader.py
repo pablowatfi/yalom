@@ -20,8 +20,8 @@ class KaggleTranscriptLoader:
             dataset_path: Path to extracted Kaggle dataset (HubermanLabTranscripts folder)
         """
         self.dataset_path = Path(dataset_path)
-        self.text_dir = self.dataset_path / "text"
         self.video_id_file = self.dataset_path / "videoID.json"
+        self.text_dir = self.dataset_path / "text"
         self.timestamped_dir = self.dataset_path / "TimestampedTranscriptions"
 
         # Load video ID mapping
