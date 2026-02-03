@@ -61,12 +61,12 @@ DDB_TABLE = os.getenv('DDB_TABLE', '')
 # RAG configuration
 RAG_TOP_K = int(os.getenv('RAG_TOP_K', '7'))  # Number of chunks to return after filtering
 RAG_RETRIEVAL_MULTIPLIER = int(os.getenv('RAG_RETRIEVAL_MULTIPLIER', '2'))  # Retrieve top_k × multiplier candidates
-RAG_SIMILARITY_THRESHOLD = float(os.getenv('RAG_SIMILARITY_THRESHOLD', '0.3'))  # Minimum cosine similarity (0-1)
+RAG_SIMILARITY_THRESHOLD = float(os.getenv('RAG_SIMILARITY_THRESHOLD', '0.45'))  # Minimum cosine similarity (0-1)
 RAG_TEMPERATURE = float(os.getenv('RAG_TEMPERATURE', '0.7'))  # LLM temperature
 RAG_HISTORY_LIMIT = int(os.getenv('RAG_HISTORY_LIMIT', '10'))
 RAG_QUERY_REWRITING = os.getenv('RAG_QUERY_REWRITING', 'true').lower() == 'true'  # Enable multi-query rewriting
-RAG_RERANKING = os.getenv('RAG_RERANKING', 'false').lower() == 'true'  # Enable cross-encoder re-ranking (slower)
-RAG_DEBUG_LOGS = os.getenv('RAG_DEBUG_LOGS', 'false').lower() == 'true'
+RAG_RERANKING = os.getenv('RAG_RERANKING', 'true').lower() == 'true'  # Enable cross-encoder re-ranking (slower)
+RAG_DEBUG_LOGS = os.getenv('RAG_DEBUG_LOGS', 'true').lower() == 'true'
 RAG_DEBUG_MAX_CHUNKS = int(os.getenv('RAG_DEBUG_MAX_CHUNKS', '10'))
 RAG_DEBUG_MAX_PROMPT_CHARS = int(os.getenv('RAG_DEBUG_MAX_PROMPT_CHARS', '800'))
 

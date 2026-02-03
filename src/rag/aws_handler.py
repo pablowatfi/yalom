@@ -66,12 +66,19 @@ def lambda_handler(event, context):
                 **debug_payload,
             }))
 
-        print(json.dumps({
+        log_payload = {
             "event": "query_completed",
             "query": query,
             "answer": response_body["answer"],
             "sources_count": len(response_body["sources"]),
-        }))
+        }
+
+        if debug_payload:
+            log_payload["rewrite_queries"] = debug_payload.get("rewrite_queries", [])
+            log_payload["similarity_chunks"] = debug_payload.get("similarity_chunks", [])
+            log_payload["reranked_chunks"] = debug_payload.get("reranked_chunks", [])
+
+        print(json.dumps(log_payload))
 
         return {
             "statusCode": 200,

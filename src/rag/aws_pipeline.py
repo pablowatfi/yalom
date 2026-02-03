@@ -215,9 +215,10 @@ class PineconeRAG:
             llm = ChatGroq(model_name=self.model, groq_api_key=os.environ.get("GROQ_API_KEY"))
             rewriter = QueryRewriter(llm=llm, enabled=True)
             rewritten = rewriter.rewrite(question)
-            queries = rewritten.get("queries") or [question]
-            if question not in queries:
-                queries.insert(0, question)
+            english_question = rewritten.get("english_question") or question
+            queries = rewritten.get("queries") or [english_question]
+            if english_question not in queries:
+                queries.insert(0, english_question)
             return queries[:3]
         except Exception as exc:
             print(f"Query rewriting unavailable: {exc}")
