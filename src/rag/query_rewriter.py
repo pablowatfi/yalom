@@ -222,7 +222,7 @@ class QueryRewriter:
 
         except Exception as e:
             logger.error(f"Query rewriting failed: {e}")
-            logger.info("Falling back to English question")
+            logger.info("Falling back to English Question")
             return {
                 'queries': [english_question],
                 'language': detected_language,
