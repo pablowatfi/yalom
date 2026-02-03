@@ -57,7 +57,7 @@ class VectorizationPipeline:
         Process a single transcript: chunk, embed, and store.
 
         Args:
-            transcript: VideoTranscript from database
+            transcript: VideoTranscript from orig database
             additional_metadata: Extra metadata to attach to chunks
 
         Returns:
