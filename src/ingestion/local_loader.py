@@ -6,6 +6,7 @@ import re
 import logging
 from pathlib import Path
 from datetime import datetime
+from typing import Optional
 
 from ..database import db, VideoTranscript
 
@@ -15,8 +16,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+DEFAULT_LOCAL_TRANSCRIPTS_DIR = "data/transcripts"
 
-def extract_episode_number(filename: str) -> int:
+
+def extract_episode_number(filename: str) -> Optional[int]:
     """Extract episode number from filename like 'Episode-1.txt'"""
     match = re.search(r'Episode-(\d+)', filename)
     if match:
@@ -24,7 +27,7 @@ def extract_episode_number(filename: str) -> int:
     return None
 
 
-def load_local_transcripts(data_folder: str = "/Users/pablowatfi/repos/yalom/data/huberman-lab-podcasts/archive (3)/transcripts"):
+def load_local_transcripts(data_folder: str = DEFAULT_LOCAL_TRANSCRIPTS_DIR) -> None:
     """
     Load all local transcript files into the database.
 
@@ -102,20 +105,21 @@ def load_local_transcripts(data_folder: str = "/Users/pablowatfi/repos/yalom/dat
             session.rollback()
             stats['failed'] += 1
 
-    # Print summary
-    print("\n" + "="*60)
-    print("Local Transcripts Load Complete!")
-    print(f"  ✓ Success: {stats['success']}")
-    print(f"  ⊘ Skipped: {stats['skipped']}")
-    print(f"  ✗ Failed: {stats['failed']}")
-    print(f"  Total files: {len(transcript_files)}")
-    print("="*60)
+    logger.info(
+        "Local transcripts load complete",
+        extra={
+            "success": stats["success"],
+            "skipped": stats["skipped"],
+            "failed": stats["failed"],
+            "total_files": len(transcript_files),
+        },
+    )
 
     # Show current database totals
     total_count = session.query(VideoTranscript).filter(
         VideoTranscript.has_transcript
     ).count()
-    print(f"\n🎉 Your database now has {total_count} transcripts total! 🎉\n")
+    logger.info("Current transcript total", extra={"total_transcripts": total_count})
 
     session.close()
 
@@ -128,7 +132,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--folder',
-        default="/Users/pablowatfi/repos/yalom/data/huberman-lab-podcasts/archive (3)/transcripts",
+        default=DEFAULT_LOCAL_TRANSCRIPTS_DIR,
         help='Path to folder containing transcript files'
     )
 

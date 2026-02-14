@@ -8,7 +8,7 @@ Process flow:
 4. Store in Qdrant vector database
 """
 import logging
-from typing import List, Optional, Dict
+from typing import Any, Dict, List, Optional
 from sqlalchemy.orm import Session
 
 from ..database import VideoTranscript
@@ -51,7 +51,7 @@ class VectorizationPipeline:
     def process_transcript(
         self,
         transcript: VideoTranscript,
-        additional_metadata: Optional[Dict] = None
+        additional_metadata: Optional[Dict[str, Any]] = None
     ) -> int:
         """
         Process a single transcript: chunk, embed, and store.
@@ -148,11 +148,14 @@ class VectorizationPipeline:
                 stats["success"] += 1
                 stats["total_chunks"] += num_chunks
 
-            except Exception as e:
-                import traceback
-                print(f"Failed to process '{transcript.title[:60]}...': {e}")
-                traceback.print_exc()
-                logger.error(f"Failed to process {transcript.title}: {e}")
+            except Exception:
+                logger.exception(
+                    "Failed to process transcript",
+                    extra={
+                        "title": transcript.title,
+                        "video_id": transcript.video_id,
+                    },
+                )
                 stats["failed"] += 1
 
         logger.info(
@@ -197,6 +200,6 @@ class VectorizationPipeline:
             logger.info(f"Successfully reprocessed {identifier}")
             return True
 
-        except Exception as e:
-            logger.error(f"Error reprocessing {identifier}: {e}")
+        except Exception:
+            logger.exception("Error reprocessing transcript", extra={"identifier": identifier})
             return False

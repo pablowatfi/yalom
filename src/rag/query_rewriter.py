@@ -5,7 +5,7 @@ Generates multiple optimized search queries from a single user question
 to improve coverage and relevance of retrieved documents.
 """
 import logging
-from typing import List, Dict
+from typing import Any, Dict, List
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.language_models.chat_models import BaseChatModel
 
@@ -166,7 +166,7 @@ class QueryRewriter:
             logger.info("Returning English text")
             return text
 
-    def rewrite(self, question: str) -> Dict[str, any]:
+    def rewrite(self, question: str) -> Dict[str, Any]:
         """
         Rewrite a user question into multiple optimized search queries and detect language.
 
