@@ -4,8 +4,10 @@ Runs weekly via EventBridge cron.
 Uses OpenAI embeddings (text-embedding-3-small).
 """
 import json
+import logging
 import os
 from datetime import datetime, timezone
+from typing import Any, Iterator
 
 import boto3
 from pinecone import Pinecone
@@ -22,6 +24,8 @@ from src.config import (
 )
 from src.embedding_service import embed_documents
 
+logger = logging.getLogger(__name__)
+
 s3 = boto3.client("s3")
 dynamodb = boto3.resource("dynamodb")
 
@@ -31,7 +35,7 @@ index = pc.Index(PINECONE_INDEX)
 ingestion_table = dynamodb.Table(DDB_TABLE) if DDB_TABLE else None
 
 
-def chunk_text(text, chunk_size=CHUNK_SIZE, overlap=CHUNK_OVERLAP):
+def chunk_text(text: str, chunk_size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) -> list[str]:
     """Split text into overlapping chunks."""
     chunks = []
     start = 0
@@ -42,13 +46,13 @@ def chunk_text(text, chunk_size=CHUNK_SIZE, overlap=CHUNK_OVERLAP):
     return chunks
 
 
-def get_embeddings(texts):
+def get_embeddings(texts: list[str]) -> list[list[float]]:
     """Generate embeddings using shared local embedding service."""
     return embed_documents(texts)
 
 
-def list_manifest_keys(bucket: str, prefix: str):
-    keys = []
+def list_manifest_keys(bucket: str, prefix: str) -> list[str]:
+    keys: list[str] = []
     continuation_token = None
     while True:
         params = {
@@ -71,7 +75,7 @@ def list_manifest_keys(bucket: str, prefix: str):
     return keys
 
 
-def iter_manifest_items(bucket: str, manifest_key: str):
+def iter_manifest_items(bucket: str, manifest_key: str) -> Iterator[dict[str, Any]]:
     response = s3.get_object(Bucket=bucket, Key=manifest_key)
     body = response["Body"].read().decode("utf-8")
     for line in body.splitlines():
@@ -79,7 +83,7 @@ def iter_manifest_items(bucket: str, manifest_key: str):
             yield json.loads(line)
 
 
-def get_s3_json(bucket: str, key: str):
+def get_s3_json(bucket: str, key: str) -> dict[str, Any]:
     response = s3.get_object(Bucket=bucket, Key=key)
     return json.loads(response["Body"].read().decode("utf-8"))
 
@@ -91,7 +95,7 @@ def is_processed(record_id: str, source: str) -> bool:
     return "Item" in response
 
 
-def mark_processed(record_id: str, source: str, extra: dict) -> None:
+def mark_processed(record_id: str, source: str, extra: dict[str, Any]) -> None:
     if not ingestion_table:
         return
     item = {
@@ -103,15 +107,15 @@ def mark_processed(record_id: str, source: str, extra: dict) -> None:
     ingestion_table.put_item(Item=item)
 
 
-def lambda_handler(event, context):
+def lambda_handler(event: dict[str, Any] | None, context: Any) -> dict[str, Any]:
     """
     Ingestion handler.
     - If event.video_ids is provided, fetches from YouTube.
     - Otherwise, reads S3 manifests and ingests missing transcripts.
     """
     try:
-        event = event or {}
-        video_ids = event.get("video_ids", [])
+        payload = event or {}
+        video_ids = payload.get("video_ids", [])
         processed_count = 0
         skipped_count = 0
         error_count = 0
@@ -161,12 +165,12 @@ def lambda_handler(event, context):
                     mark_processed(video_id, "youtube", {"chunks": len(chunks)})
                     processed_count += 1
 
-                except Exception as video_error:
-                    print(f"Error processing {video_id}: {str(video_error)}")
+                except Exception:
+                    logger.exception("Error processing YouTube transcript", extra={"video_id": video_id})
                     error_count += 1
                     continue
         else:
-            manifest_prefix = event.get("s3_manifest_prefix", S3_PREFIX)
+            manifest_prefix = payload.get("s3_manifest_prefix", S3_PREFIX)
             manifest_keys = list_manifest_keys(S3_BUCKET, manifest_prefix)
 
             if not manifest_keys:
@@ -176,7 +180,7 @@ def lambda_handler(event, context):
                     "skipped": 0,
                     "errors": 0,
                 }
-                print(json.dumps(result))
+                logger.info("No manifests found", extra=result)
                 return {
                     "statusCode": 200,
                     "body": json.dumps(result),
@@ -229,8 +233,11 @@ def lambda_handler(event, context):
                         })
                         processed_count += 1
 
-                    except Exception as s3_error:
-                        print(f"Error processing {s3_key}: {str(s3_error)}")
+                    except Exception:
+                        logger.exception(
+                            "Error processing S3 transcript item",
+                            extra={"record_id": record_id, "source": source, "s3_key": s3_key},
+                        )
                         error_count += 1
                         continue
 
@@ -240,15 +247,15 @@ def lambda_handler(event, context):
             "skipped": skipped_count,
             "errors": error_count,
         }
-        print(json.dumps(result))
+        logger.info("Ingestion completed", extra=result)
         return {
             "statusCode": 200,
             "body": json.dumps(result),
         }
 
-    except Exception as e:
-        print(f"Error: {str(e)}")
+    except Exception:
+        logger.exception("Unhandled ingestion lambda error")
         return {
             "statusCode": 500,
-            "body": json.dumps(f"Error: {str(e)}"),
+            "body": json.dumps("Internal server error"),
         }

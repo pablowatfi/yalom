@@ -1,8 +1,10 @@
 """
 Lightweight RAG pipeline for AWS Lambda using Pinecone + Groq + OpenAI embeddings.
 """
+import json
+import logging
 import os
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 from groq import Groq
 from pinecone import Pinecone
@@ -22,6 +24,8 @@ from src.config import (
 )
 from src.embedding_service import embed_query
 from src.rag.prompts import get_active_prompt, get_language_name
+
+logger = logging.getLogger(__name__)
 
 
 class PineconeRAG:
@@ -196,13 +200,13 @@ class PineconeRAG:
             content = response.choices[0].message.content.strip()
             ordered_ids = []
             if content.startswith("[") and content.endswith("]"):
-                import json
                 ordered_ids = json.loads(content)
             if ordered_ids:
                 reranked = [id_to_match[mid] for mid in ordered_ids if mid in id_to_match]
                 remaining = [m for m in matches if m.get("id") not in ordered_ids]
                 return reranked + remaining
         except Exception:
+            logger.exception("Reranking failed, using similarity-ranked matches")
             return matches
 
         return matches
@@ -220,6 +224,6 @@ class PineconeRAG:
             if english_question not in queries:
                 queries.insert(0, english_question)
             return queries[:3]
-        except Exception as exc:
-            print(f"Query rewriting unavailable: {exc}")
+        except Exception:
+            logger.exception("Query rewriting unavailable, falling back to original query")
             return [question]

@@ -144,6 +144,12 @@ If you want a temporary production demo, contact the repo owner to spin up a one
 - [docs/KAGGLE_DATASET_GUIDE.md](docs/KAGGLE_DATASET_GUIDE.md)
 - [docs/GITHUB_FREE_SOLUTION.md](docs/GITHUB_FREE_SOLUTION.md)
 
+## 🧭 Engineering standards
+
+- All code changes must follow `code_changes.md`.
+- Runtime modules under `src/` should use structured logging (`logging`) and avoid `print`.
+- Public entry points should include explicit input/output typing and boundary validation.
+
 ## 📝 License
 
 MIT License

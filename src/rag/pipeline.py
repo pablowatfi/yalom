@@ -10,7 +10,7 @@ Flow:
 """
 import os
 import logging
-from typing import List, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import HumanMessage, AIMessage
@@ -167,7 +167,7 @@ class RAGPipeline:
 
         logger.info("RAG pipeline initialized successfully")
 
-    def ask(self, question: str) -> Dict[str, any]:
+    def ask(self, question: str) -> Dict[str, Any]:
         """
         Ask a question and get an answer with sources.
 
@@ -251,16 +251,22 @@ class RAGPipeline:
 
         # Display retrieved sources with similarity scores
         if self.verbose_sources == 1:
-            print("\n" + "─" * 80)
-            print(f"📚 RETRIEVED {len(docs)} CHUNKS FROM VECTOR DB:")
-            print("─" * 80)
+            logger.info(
+                "Retrieved chunks from vector store",
+                extra={"count": len(docs)},
+            )
             for i, (doc, score) in enumerate(final_docs_with_scores, 1):
                 title = doc.metadata.get('title', 'Unknown')
-                print(f"\n[{i}] {title} (similarity: {score:.3f})")
-                print(f"    Content ({len(doc.page_content)} chars):")
-                print(f"    {doc.page_content}")
-                print()
-            print("─" * 80 + "\n")
+                logger.info(
+                    "Retrieved chunk detail",
+                    extra={
+                        "rank": i,
+                        "title": title,
+                        "similarity": round(score, 3),
+                        "content_length": len(doc.page_content),
+                        "content": doc.page_content,
+                    },
+                )
 
         # 3. Build context from documents
         context = "\n\n".join([
@@ -268,7 +274,7 @@ class RAGPipeline:
             for doc in docs
         ])
 
-# 4. Format prompt with context and English question
+        # 4. Format prompt with context and English question
         # Include chat history for follow-up questions
         messages = self.prompt.format_messages(
             context=context,
@@ -347,8 +353,13 @@ class RAGPipeline:
         """
         history = []
         for msg in self.chat_history:
-            if isinstance(msg, HumanMessage):
-                history.append({"role": "user", "content": msg.content})
-            elif isinstance(msg, AIMessage):
-                history.append({"role": "assistant", "content": msg.content})
+            msg_type = getattr(msg, "type", None)
+            msg_content = getattr(msg, "content", None)
+            if msg_content is None:
+                continue
+
+            if isinstance(msg, HumanMessage) or msg_type in {"human", "user"}:
+                history.append({"role": "user", "content": str(msg_content)})
+            elif isinstance(msg, AIMessage) or msg_type in {"ai", "assistant"}:
+                history.append({"role": "assistant", "content": str(msg_content)})
         return history
