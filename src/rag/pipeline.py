@@ -353,8 +353,13 @@ class RAGPipeline:
         """
         history = []
         for msg in self.chat_history:
-            if isinstance(msg, HumanMessage):
-                history.append({"role": "user", "content": msg.content})
-            elif isinstance(msg, AIMessage):
-                history.append({"role": "assistant", "content": msg.content})
+            msg_type = getattr(msg, "type", None)
+            msg_content = getattr(msg, "content", None)
+            if msg_content is None:
+                continue
+
+            if isinstance(msg, HumanMessage) or msg_type in {"human", "user"}:
+                history.append({"role": "user", "content": str(msg_content)})
+            elif isinstance(msg, AIMessage) or msg_type in {"ai", "assistant"}:
+                history.append({"role": "assistant", "content": str(msg_content)})
         return history
